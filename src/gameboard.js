@@ -7,29 +7,41 @@ class Gameboard {
     this.missed = [];
     this.ships = [];
   }
-
-  placeShip(row, col, shipSize, direction = "horizontal") {
-    const ship = new Ship(shipSize);
-    this.board[row][col] = ship;
-    this.ships.push([row, col]);
+  getShipCoodinate(row, col, shipSize, direction) {
+    if (row > this.size - 1 || col > this.size - 1) {
+      throw new Error("Invalid coodinate");
+    }
+    const shipCoodinates = [];
     if (direction === "horizontal") {
-      for (let i = 1; i <= shipSize; i++) {
-        let currentLoc = this.board[row][col + i];
-        if (currentLoc) {
-          throw new Error("Looks like a ship has been already placed here!");
-        }
-        currentLoc = ship;
+      if (col + shipSize > this.board[0].length) {
+        throw new Error(
+          "Invalid coodinate: ship extends beyond board horizontally",
+        );
+      }
+      for (let i = 0; i <= shipSize - 1; i++) {
+        shipCoodinates.push([row, col + i]);
+      }
+    } else if (direction === "vertical") {
+      if (row + shipSize > this.board.length) {
+        throw new Error(
+          "Invalid coodinate: ship extends beyond board vertically",
+        );
+      }
+      for (let i = 0; i <= shipSize - 1; i++) {
+        shipCoodinates.push([row + i, col]);
       }
     }
-    if (direction === "vertical") {
-      for (let i = 1; i <= shipSize; i++) {
-        let currentLoc = this.board[row + i][col];
-        if (currentLoc) {
-          throw new Error("Looks like a ship has been already placed here!");
-        }
-        currentLoc = ship;
-      }
+    return shipCoodinates;
+  }
+  placeShip(row, col, shipSize, direction = "horizontal") {
+    const shipCoodinates = this.getShipCoodinate(row, col, shipSize, direction);
+    const ship = new Ship(shipSize);
+    if (shipCoodinates.some(([nx, ny]) => this.isAdjacentToShip(nx, ny))) {
+      throw new Error("Cannot place ship: positino already occupied.");
     }
+    shipCoodinates.forEach(([x, y]) => {
+      this.board[x][y] = ship;
+    });
   }
   receiveAttack(row, col) {
     const ship = this.board[row][col];
@@ -50,6 +62,51 @@ class Gameboard {
       return !sunk(ship[0], ship[1]);
     });
   }
+  printTable() {
+    console.table(this.board);
+  }
+  isAdjacentToShip(x, y) {
+    const naighbors = [
+      [x + 1, y],
+      [x - 1, y],
+      [x, y + 1],
+      [x, y - 1],
+      [x + 1, y + 1],
+      [x - 1, y - 1],
+      [x + 1, y - 1],
+      [x - 1, y + 1],
+    ];
+    return naighbors.some(([nx, ny]) => {
+      if (
+        nx < 0 ||
+        nx >= this.board.length ||
+        ny < 0 ||
+        ny >= this.board[0].length
+      ) {
+        return false;
+      }
+      return this.board[nx][ny] !== null;
+    });
+  }
+  placeShipRandom(shipSize) {
+    //get 1 or 2 to decide direction
+    const direction = Math.random() > 0.5 ? "horizontal" : "vertical";
+    const col = Math.floor(Math.random() * 7);
+    const row = Math.floor(Math.random() * 7);
+    try {
+      this.board.placeShip(row, col, shipSize, direction);
+      return;
+    } catch {
+      this.placeShipRandom(shipSize);
+    }
+  }
+  placeAllShipsRandom() {
+    this.board = new Gameboard();
+    this.placeShipRandom(3);
+    this.placeShipRandom(3);
+    this.placeShipRandom(5);
+    this.placeShipRandom(4);
+    this.placeShipRandom(2);
+  }
 }
-
 export { Gameboard };

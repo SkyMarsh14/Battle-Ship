@@ -7,5 +7,6 @@ class Player {
     this.gameboard = new Gameboard();
   }
 
-  placeShipRandom() {}
+
 }
+export{Player}

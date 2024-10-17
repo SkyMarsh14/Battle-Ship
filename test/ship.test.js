@@ -1,4 +1,4 @@
-import {Ship} from "./ship.js"
+import {Ship} from "../src/ship.js"
 
 it("test",()=>{
     const submarine=new Ship(3);

@@ -1,5 +1,5 @@
-import { Gameboard } from "./gameboard";
-import { Ship } from "./ship";
+import { Gameboard } from "../src/gameboard.js";
+import { Ship } from "../src/ship.js";
 
 it("placeShip",()=>{
     const gameboard=new Gameboard();
@@ -17,6 +17,10 @@ it('placeShip Vertical',()=>{
     expect(gameboard.board[2][0]).toEqual(new Ship(3));
 })
 
+it('invalid place ship',()=>{
+    const gameboard=new Gameboard();
+    expect(gameboard.placeShip(8,8,1)).toThrow('Looks like a ship has been already placed here!')
+})
 it('receive Attack',()=>{
     const gameboard=new Gameboard();
     expect(gameboard.receiveAttack(1,1)).toBe(false);

@@ -1,11 +1,12 @@
 import { Ship } from "./ship.js";
 
 class Gameboard {
-  constructor(size = 7) {
+  constructor(size = 10) {
     this.size = size;
     this.board = Array.from({ length: size }, () => new Array(size).fill(null));
     this.missed = [];
     this.ships = [];
+    this.printTable=this.printTable.bind(this)
   }
   getShipCoodinate(row, col, shipSize, direction) {
     if (row > this.size - 1 || col > this.size - 1) {
@@ -37,11 +38,12 @@ class Gameboard {
     const shipCoodinates = this.getShipCoodinate(row, col, shipSize, direction);
     const ship = new Ship(shipSize);
     if (shipCoodinates.some(([nx, ny]) => this.isAdjacentToShip(nx, ny))) {
-      throw new Error("Cannot place ship: positino already occupied.");
+      throw new Error("Cannot place ship: position already occupied.");
     }
     shipCoodinates.forEach(([x, y]) => {
       this.board[x][y] = ship;
     });
+    this.ships.push([row, col]);
   }
   receiveAttack(row, col) {
     const ship = this.board[row][col];
@@ -58,8 +60,8 @@ class Gameboard {
   areAllShipsSunk() {
     //check if there's any ship that is not sunk.
     const sunk = (x, y) => this.board[x][y].isSunk();
-    return !this.ships.some((ship) => {
-      return !sunk(ship[0], ship[1]);
+    return !this.ships.some(([nx, ny]) => {
+      return !sunk(nx, ny);
     });
   }
   printTable() {
@@ -91,22 +93,34 @@ class Gameboard {
   placeShipRandom(shipSize) {
     //get 1 or 2 to decide direction
     const direction = Math.random() > 0.5 ? "horizontal" : "vertical";
-    const col = Math.floor(Math.random() * 7);
-    const row = Math.floor(Math.random() * 7);
+    let row;
+    let col;
+    if(direction==='horizontal'){
+      row = Math.floor(Math.random() * (this.size-shipSize));
+      col = Math.floor(Math.random() * 7);
+    }else{
+      row = Math.floor(Math.random() * 7);
+      col = Math.floor(Math.random() * (this.size-shipSize));
+    }
     try {
-      this.board.placeShip(row, col, shipSize, direction);
+      this.placeShip(row, col, shipSize, direction);
       return;
-    } catch {
+    } catch (err){
+      console.log(err)
       this.placeShipRandom(shipSize);
     }
   }
   placeAllShipsRandom() {
-    this.board = new Gameboard();
-    this.placeShipRandom(3);
-    this.placeShipRandom(3);
+    this.resetBoard();
     this.placeShipRandom(5);
     this.placeShipRandom(4);
+    this.placeShipRandom(3);
+    this.placeShipRandom(3);
     this.placeShipRandom(2);
+    console.log('Ships has been randomly placed.')
+  }
+  resetBoard() {
+    this.board = Array.from({ length: this.size }, () => new Array(this.size).fill(null));
   }
 }
 export { Gameboard };

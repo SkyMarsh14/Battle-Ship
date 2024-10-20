@@ -6,7 +6,7 @@ class Gameboard {
     this.board = Array.from({ length: size }, () => new Array(size).fill(null));
     this.missed = [];
     this.ships = [];
-    this.printTable=this.printTable.bind(this)
+    this.printTable = this.printTable.bind(this);
   }
   getShipCoodinate(row, col, shipSize, direction) {
     if (row > this.size - 1 || col > this.size - 1) {
@@ -95,18 +95,18 @@ class Gameboard {
     const direction = Math.random() > 0.5 ? "horizontal" : "vertical";
     let row;
     let col;
-    if(direction==='horizontal'){
-      row = Math.floor(Math.random() * (this.size-shipSize));
-      col = Math.floor(Math.random() * 7);
-    }else{
-      row = Math.floor(Math.random() * 7);
-      col = Math.floor(Math.random() * (this.size-shipSize));
+    if (direction === "horizontal") {
+      row = Math.floor(Math.random() * (this.size - shipSize));
+      col = Math.floor(Math.random() * this.size);
+    } else {
+      row = Math.floor(Math.random() * this.size);
+      col = Math.floor(Math.random() * (this.size - shipSize));
     }
     try {
       this.placeShip(row, col, shipSize, direction);
       return;
-    } catch (err){
-      console.log(err)
+    } catch (err) {
+      console.log(err);
       this.placeShipRandom(shipSize);
     }
   }
@@ -117,10 +117,12 @@ class Gameboard {
     this.placeShipRandom(3);
     this.placeShipRandom(3);
     this.placeShipRandom(2);
-    console.log('Ships has been randomly placed.')
+    console.log("Ships has been randomly placed.");
   }
   resetBoard() {
-    this.board = Array.from({ length: this.size }, () => new Array(this.size).fill(null));
+    this.board = Array.from({ length: this.size }, () =>
+      new Array(this.size).fill(null),
+    );
   }
 }
 export { Gameboard };

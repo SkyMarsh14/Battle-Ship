@@ -3,8 +3,8 @@ class Gamecontrol {
     this.playerOne = playerOne;
     this.playerTwo = playerTwo;
     this.activePlayer = playerOne;
-    }
-  
+  }
+
   getActivePlayer = () => this.activePlayer;
   switchPlayerTurn() {
     this.activePlayer =
@@ -19,7 +19,7 @@ class Gamecontrol {
       : this.playerOne.gameboard;
   }
   attackOpponent(x, y) {
-    console.log(`${this.activePlayer.name} is attacking`)
+    console.log(`${this.activePlayer.name} is attacking`);
     const attack = this.activePlayer.attack(this.getOpponentGameboard(), x, y);
     if (attack) {
       console.log("Attack Successful! ");
@@ -37,7 +37,7 @@ class Gamecontrol {
     this.playerTwo.gameboard.resetBoard();
     console.log("Gameboard resetted. Starting a new game.");
   }
-  printTables(){
+  printTables() {
     console.log("Player One's table");
     this.playerOne.gameboard.printTable();
     console.log("Player Two's table");

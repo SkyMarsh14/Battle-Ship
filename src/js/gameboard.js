@@ -118,6 +118,7 @@ class Gameboard {
     this.placeShipRandom(3);
     this.placeShipRandom(2);
     console.log("Ships has been randomly placed.");
+    return this.board;
   }
   resetBoard() {
     this.board = Array.from({ length: this.size }, () =>

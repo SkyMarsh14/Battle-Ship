@@ -6,9 +6,12 @@ class Gameboard {
     this.board = Array.from({ length: size }, () => new Array(size).fill(null));
     this.missed = [];
     this.ships = [];
-    this.gotHit=[];
+    this.gotHit = [];
     this.printTable = this.printTable.bind(this);
-    this.attacked=this.gotHit.concat(this.missed);
+  }
+
+  get attacked(){
+    return this.gotHit.concat(this.missed)
   }
   getShipCoodinate(row, col, shipSize, direction) {
     if (row > this.size - 1 || col > this.size - 1) {
@@ -47,23 +50,23 @@ class Gameboard {
     });
     this.ships.push([row, col]);
   }
-  receiveAttack(x,y) {
-    const attacked=this.missed.concat(this.gotHit);
-    const isCellAttacked=attacked.some((item)=>item[0]===x&&item[1]===y);
-
-    if(isCellAttacked){
-      throw new Error('This cell has already been attacked')
+  receiveAttack(x, y) {
+    const isCellAttacked=this.attacked.some(
+      (item)=>Array.isArray(item)&&item.length===2&&item[0]===x&&item[1]===y
+    )
+    if (isCellAttacked) {
+      throw new Error('You have attacked this cell already.')
     }
     const ship = this.board[y][x];
     if (ship) {
       ship.hit();
-      if(this.areAllShipsSunk()){
-        console.log('You lost')
+      if (this.areAllShipsSunk()) {
+        console.log("You lost");
       }
-      this.gotHit.push([x,y]);
+      this.gotHit.push([x, y]);
       return true;
     }
-    this.missed.push([x,y]);
+    this.missed.push([x, y]);
     return false;
   }
   showMissedShots() {
@@ -136,6 +139,24 @@ class Gameboard {
     this.board = Array.from({ length: this.size }, () =>
       new Array(this.size).fill(null),
     );
+  }
+  botAttack(){
+    let x,y;
+
+    do{
+      x=Math.floor(Math.random()*10);
+      y=Math.floor(Math.random()*10);
+    }while(this.attacked.some(
+      (item)=>item[0]===x&&item[1]===y
+    ));
+
+    if(this.receiveAttack(x,y)){
+      console.log(`Bot hit your ship. Another turn.`)
+      this.gotHit.push([x,y]);
+      this.botAttack();
+    };
+    console.log(`bot attacked ${[x,y]}`)
+    return {hit:this.gotHit,miss:this.missed};
   }
 }
 export { Gameboard };

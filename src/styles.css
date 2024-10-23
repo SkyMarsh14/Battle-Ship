@@ -237,12 +237,12 @@ p {
   display: flex;
   gap: 5em;
 }
-.gotHit{
-  background: url('./svg/cross-mark-svgrepo-com.svg');
+.gotHit {
+  background: url("./svg/cross-mark-svgrepo-com.svg");
   background-repeat: no-repeat;
-  background-size:cover;
-  background-position:center;
+  background-size: cover;
+  background-position: center;
 }
-.missed{
+.missed {
   background-color: red;
 }

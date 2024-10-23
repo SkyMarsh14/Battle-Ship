@@ -25,32 +25,30 @@ function markShips(array, cellContainer) {
 
 function markAttackedCell(playerGrid, gameControl) {
   playerGrid.addEventListener("click", (e) => {
-    const player=playerGrid.dataset.player;
+    e.stopPropagation();
+    const player = playerGrid.dataset.player;
     const cellIndex = e.target.dataset.cellNumber;
+    if(isNaN(cellIndex)) return;
     const x = cellIndex % 10;
     const y = Math.floor(cellIndex / 10);
-    if(gameControl[player].attack(x,y)){
-      e.target.classList.add('gotHit')
-    }else{
-      e.target.classList.add('missed')
+    if (gameControl[player].attack(x, y)) {
+      e.target.classList.add("gotHit");
+      console.log('You hit a target, your turn again!')
+      return;
+    } else {
+      e.target.classList.add("missed");
     }
-    attackRandomly(gameControl.playerOne);
+    const playerOneBoard = document.querySelector(`[data-player="playerOne"]`);
+const grid = playerOneBoard.querySelectorAll(".cell");
+
+    const boardInfo= gameControl.playerOne.gameboard.botAttack();
+    boardInfo.miss.forEach((item)=>{
+      grid[item[0]+item[1]*10].classList.add('missed')
+    });
+    boardInfo.hit.forEach((item)=>{
+      grid[item[0]+item[1]*10].classList.add('gotHit')
+    })
   });
 }
 
-function attackRandomly(targetPlayer){
-  const x = Math.floor(Math.random()*10);
-  const y = Math.floor(Math.random()*10);
-  const validate=([x,y])=>{
-    return targetPlayer.gameboard.attacked.some((item)=>item[0]===x&&item[1]===y)
-  }
-  if(validate([x,y])) attackRandomly(targetPlayer);
-  const playerOneBoard=document.querySelector(`[data-player="playerOne"]`)
-  const grid=playerOneBoard.querySelectorAll('.cell')
-  if(targetPlayer.attack(x,y)){
-  console.log(`${targetPlayer.name} has attacked ${[x,y]}`);
-  grid[x+y*10].classList.add('gotHit');
-  }else{grid[x+y*10].classList.add('missed');
-}
-}
 export { generateGameboard, markShips, markAttackedCell };

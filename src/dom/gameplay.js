@@ -9,8 +9,8 @@ export default function startGame(gameControl) {
   const playerTwoGrid = document.createElement("div");
   playerOneGrid.classList.add("shipGrid");
   playerTwoGrid.classList.add("shipGrid");
-  playerOneGrid.dataset.player='playerOne'
-  playerTwoGrid.dataset.player='playerTwo';
+  playerOneGrid.dataset.player = "playerOne";
+  playerTwoGrid.dataset.player = "playerTwo";
   containerDiv.append(playerOneGrid, playerTwoGrid);
   generateGameboard(playerOneGrid);
   generateGameboard(playerTwoGrid);

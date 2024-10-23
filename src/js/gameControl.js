@@ -19,7 +19,7 @@ class Gamecontrol {
       : this.playerOne.gameboard;
   }
   getAttack(x, y) {
-    this.activePlayer.gameboard.board.receveAttack(x,y)
+    this.activePlayer.gameboard.board.receveAttack(x, y);
     this.switchPlayerTurn();
   }
   reset() {

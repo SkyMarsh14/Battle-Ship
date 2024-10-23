@@ -25,29 +25,40 @@ function markShips(array, cellContainer) {
 
 function markAttackedCell(playerGrid, gameControl) {
   playerGrid.addEventListener("click", (e) => {
+    const gameLog=document.querySelector('.gameLog')
+    gameLog.textContent='';
     e.stopPropagation();
     const player = playerGrid.dataset.player;
     const cellIndex = e.target.dataset.cellNumber;
-    if(isNaN(cellIndex)) return;
+    if (isNaN(cellIndex)) return;
     const x = cellIndex % 10;
     const y = Math.floor(cellIndex / 10);
     if (gameControl[player].attack(x, y)) {
       e.target.classList.add("gotHit");
-      console.log('You hit a target, your turn again!')
+
+      gameLog.textContent="You hit a target, your turn again!";
       return;
     } else {
       e.target.classList.add("missed");
     }
     const playerOneBoard = document.querySelector(`[data-player="playerOne"]`);
-const grid = playerOneBoard.querySelectorAll(".cell");
+    const grid = playerOneBoard.querySelectorAll(".cell");
 
-    const boardInfo= gameControl.playerOne.gameboard.botAttack();
-    boardInfo.miss.forEach((item)=>{
-      grid[item[0]+item[1]*10].classList.add('missed')
+    const boardInfo = gameControl.playerOne.gameboard.botAttack();
+    boardInfo.miss.forEach((item) => {
+      grid[item[0] + item[1] * 10].classList.add("missed");
     });
-    boardInfo.hit.forEach((item)=>{
-      grid[item[0]+item[1]*10].classList.add('gotHit')
-    })
+    boardInfo.hit.forEach((item) => {
+      grid[item[0] + item[1] * 10].classList.add("gotHit");
+    });
+    let message
+    console.log(boardInfo.log)
+    if(boardInfo.log.length>1){
+      message = `The bot hit ${boardInfo.log.length-1} of your ships!`
+    }else{
+       message = `The bot attacked X:${boardInfo.log[0][0]} Y:${boardInfo.log[0][1]}`
+    }
+    document.querySelector('.gameLog').textContent=message;
   });
 }
 

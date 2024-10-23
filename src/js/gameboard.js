@@ -10,8 +10,8 @@ class Gameboard {
     this.printTable = this.printTable.bind(this);
   }
 
-  get attacked(){
-    return this.gotHit.concat(this.missed)
+  get attacked() {
+    return this.gotHit.concat(this.missed);
   }
   getShipCoodinate(row, col, shipSize, direction) {
     if (row > this.size - 1 || col > this.size - 1) {
@@ -51,11 +51,15 @@ class Gameboard {
     this.ships.push([row, col]);
   }
   receiveAttack(x, y) {
-    const isCellAttacked=this.attacked.some(
-      (item)=>Array.isArray(item)&&item.length===2&&item[0]===x&&item[1]===y
-    )
+    const isCellAttacked = this.attacked.some(
+      (item) =>
+        Array.isArray(item) &&
+        item.length === 2 &&
+        item[0] === x &&
+        item[1] === y,
+    );
     if (isCellAttacked) {
-      throw new Error('You have attacked this cell already.')
+      throw new Error("You have attacked this cell already.");
     }
     const ship = this.board[y][x];
     if (ship) {
@@ -140,23 +144,23 @@ class Gameboard {
       new Array(this.size).fill(null),
     );
   }
-  botAttack(){
-    let x,y;
+  botAttack(log=[]) {
+    let x, y;
+    do {
+      x = Math.floor(Math.random() * 10);
+      y = Math.floor(Math.random() * 10);
+    } while (this.attacked.some((item) => item[0] === x && item[1] === y));
 
-    do{
-      x=Math.floor(Math.random()*10);
-      y=Math.floor(Math.random()*10);
-    }while(this.attacked.some(
-      (item)=>item[0]===x&&item[1]===y
-    ));
+    if (this.receiveAttack(x, y)) {
+      console.log(`Bot hit your ship. Another turn.`);
+      this.gotHit.push([x, y]);
+      log.push([x,y])
+      this.botAttack(log);
+  }else{
+    log.push([x,y]);
 
-    if(this.receiveAttack(x,y)){
-      console.log(`Bot hit your ship. Another turn.`)
-      this.gotHit.push([x,y]);
-      this.botAttack();
-    };
-    console.log(`bot attacked ${[x,y]}`)
-    return {hit:this.gotHit,miss:this.missed};
+  }
+    return { hit: this.gotHit, miss: this.missed,log};
   }
 }
 export { Gameboard };

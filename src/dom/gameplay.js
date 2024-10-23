@@ -1,5 +1,10 @@
 import { markShips, generateGameboard, markAttackedCell } from "./../util/util";
 
+const footer=document.querySelector('.content');
+const gameLog=document.createElement('h1');
+footer.append(gameLog)
+gameLog.classList.add('gameLog')
+
 export default function startGame(gameControl) {
   console.log(gameControl);
   const containerDiv = document.querySelector(".containerDiv");

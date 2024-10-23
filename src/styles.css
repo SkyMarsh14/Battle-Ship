@@ -224,12 +224,25 @@ p {
   margin: 10px;
   padding: 5px 10px;
 }
-.containerDiv{
-  position:absolute;
-  top:50%;
+.containerDiv {
+  position: absolute;
+  top: 50%;
   transform: translateY(-50%);
   z-index: 1;
 }
-.hasShip{
-  background-color:yellow;
+.hasShip {
+  background-color: yellow;
+}
+.twoBoards {
+  display: flex;
+  gap: 5em;
+}
+.gotHit{
+  background: url('./svg/cross-mark-svgrepo-com.svg');
+  background-repeat: no-repeat;
+  background-size:cover;
+  background-position:center;
+}
+.missed{
+  background-color: red;
 }

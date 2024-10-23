@@ -25,8 +25,8 @@ export default function loadFirstPage() {
   nameFormDiv.append(label, nameInput);
   playerNameForm.append(startGameBtn);
 
-  playerNameForm.addEventListener('submit',(e)=>{
+  playerNameForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    placeShipScreen(nameInput.value='Player One');
-  })
+    placeShipScreen((nameInput.value = "Player One"));
+  });
 }

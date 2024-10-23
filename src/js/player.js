@@ -6,8 +6,9 @@ class Player {
     this.computer = computer;
     this.gameboard = new Gameboard();
   }
-  attack(gameboard, x, y) {
-    return gameboard.receiveAttack(x, y);
+  attack(x, y) {
+    console.log(`${this.name} got an attack on ${[x,y]}`)
+    return this.gameboard.receiveAttack(x, y);
   }
 }
 export { Player };

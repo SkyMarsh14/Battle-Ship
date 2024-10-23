@@ -6,7 +6,9 @@ class Gameboard {
     this.board = Array.from({ length: size }, () => new Array(size).fill(null));
     this.missed = [];
     this.ships = [];
+    this.gotHit=[];
     this.printTable = this.printTable.bind(this);
+    this.attacked=this.gotHit.concat(this.missed);
   }
   getShipCoodinate(row, col, shipSize, direction) {
     if (row > this.size - 1 || col > this.size - 1) {
@@ -45,13 +47,23 @@ class Gameboard {
     });
     this.ships.push([row, col]);
   }
-  receiveAttack(row, col) {
-    const ship = this.board[row][col];
+  receiveAttack(x,y) {
+    const attacked=this.missed.concat(this.gotHit);
+    const isCellAttacked=attacked.some((item)=>item[0]===x&&item[1]===y);
+
+    if(isCellAttacked){
+      throw new Error('This cell has already been attacked')
+    }
+    const ship = this.board[y][x];
     if (ship) {
       ship.hit();
+      if(this.areAllShipsSunk()){
+        console.log('You lost')
+      }
+      this.gotHit.push([x,y]);
       return true;
     }
-    this.missed.push([row, col]);
+    this.missed.push([x,y]);
     return false;
   }
   showMissedShots() {

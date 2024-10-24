@@ -13,19 +13,19 @@ class Gameboard {
   get attacked() {
     return this.gotHit.concat(this.missed);
   }
-  getShipCoodinate(row, col, shipSize, direction) {
+  getShipCoordinate(row, col, shipSize, direction) {
     if (row > this.size - 1 || col > this.size - 1) {
       throw new Error("Invalid coodinate");
     }
-    const shipCoodinates = [];
+    const shipCoordinates = [];
     if (direction === "horizontal") {
-      if (col + shipSize > this.board[0].length) {
+      if (col + shipSize > this.size) {
         throw new Error(
           "Invalid coodinate: ship extends beyond board horizontally",
         );
       }
       for (let i = 0; i <= shipSize - 1; i++) {
-        shipCoodinates.push([row, col + i]);
+        shipCoordinates.push([row, col + i]);
       }
     } else if (direction === "vertical") {
       if (row + shipSize > this.board.length) {
@@ -34,13 +34,13 @@ class Gameboard {
         );
       }
       for (let i = 0; i <= shipSize - 1; i++) {
-        shipCoodinates.push([row + i, col]);
+        shipCoordinates.push([row + i, col]);
       }
     }
-    return shipCoodinates;
+    return shipCoordinates;
   }
   placeShip(row, col, shipSize, direction = "horizontal") {
-    const shipCoodinates = this.getShipCoodinate(row, col, shipSize, direction);
+    const shipCoodinates = this.getShipCoordinate(row, col, shipSize, direction);
     const ship = new Ship(shipSize);
     if (shipCoodinates.some(([nx, ny]) => this.isAdjacentToShip(nx, ny))) {
       throw new Error("Cannot place ship: position already occupied.");
@@ -48,7 +48,7 @@ class Gameboard {
     shipCoodinates.forEach(([x, y]) => {
       this.board[x][y] = ship;
     });
-    this.ships.push([row, col]);
+    this.ships.push(ship);
   }
   receiveAttack(x, y) {
     const isCellAttacked = this.attacked.some(
@@ -78,10 +78,7 @@ class Gameboard {
   }
   areAllShipsSunk() {
     //check if there's any ship that is not sunk.
-    const sunk = (x, y) => this.board[x][y].isSunk();
-    return !this.ships.some(([nx, ny]) => {
-      return !sunk(nx, ny);
-    });
+    return this.ships.every(ship=>ship.isSunk());
   }
   printTable() {
     console.table(this.board);
@@ -123,6 +120,7 @@ class Gameboard {
     }
     try {
       this.placeShip(row, col, shipSize, direction);
+      this.ships.push(new Ship(shipSize));
       return;
     } catch (err) {
       console.log(err);
@@ -144,23 +142,80 @@ class Gameboard {
       new Array(this.size).fill(null),
     );
   }
-  botAttack(log=[]) {
+  botAttack(log = []) {
     let x, y;
+    const bestCoord=this.getBestCoord()
+    if(bestCoord){
+      console.log(bestCoord);
+      [x,y]=bestCoord;
+    }else{
     do {
       x = Math.floor(Math.random() * 10);
       y = Math.floor(Math.random() * 10);
     } while (this.attacked.some((item) => item[0] === x && item[1] === y));
-
+  }
     if (this.receiveAttack(x, y)) {
       console.log(`Bot hit your ship. Another turn.`);
-      this.gotHit.push([x, y]);
-      log.push([x,y])
+      log.push([x, y]);
       this.botAttack(log);
-  }else{
-    log.push([x,y]);
-
+    } else {
+      log.push([x, y]);
+    }
+    return {
+      hit: this.gotHit,
+      miss: this.missed,
+      log,
+      allShipSunk: this.areAllShipsSunk(),
+    };
   }
-    return { hit: this.gotHit, miss: this.missed,log};
+
+  getBestCoord() {
+    // Return false if no hits were made
+    if (this.gotHit.length === 0) {
+      return false;
+    }
+    
+    // Find a ship that got hit but hasn't been sunk yet
+    const unsunkShipCoord = this.gotHit.findLast(([x, y]) => {
+      return !this.board[y][x].isSunk();
+    });
+    // If no unsunk ship is found, return false
+    if (!unsunkShipCoord) {
+      return false;
+    }
+  
+    // Get neighbors of the unsunk ship's coordinate
+    let [x, y] = unsunkShipCoord;
+    const neighbors = [
+      [x + 1, y],
+      [x - 1, y],
+      [x, y + 1],
+      [x, y - 1],
+    ];
+  
+    // Filter valid coordinates that are within the board boundaries
+    const validNeighbors = neighbors.filter(([nx, ny]) => {
+      return nx >= 0 && nx < 10 && ny >= 0 && ny < 10;
+    });
+  
+    // Filter coordinates that haven't been attacked yet
+    const unAttackedNeighbors = validNeighbors.filter(([nx, ny]) => {
+      return !this.attacked.some(([ax, ay]) => ax === nx && ay === ny);
+    });
+    // If un-attacked neighbors exist, return one; otherwise, return any valid neighbor
+    if (unAttackedNeighbors.length > 0) {
+      return unAttackedNeighbors[Math.floor(Math.random()*unAttackedNeighbors.length)]; 
+    }
+  
+    // Fallback: if all neighbors have been attacked, return any valid neighbor
+    return false;
+  }
+  
+  hasUnsunkedShip(){
+    return this.gotHit.some(([x,y])=>{
+      return !this.board[y][x].isSunk();
+    })
   }
 }
+
 export { Gameboard };

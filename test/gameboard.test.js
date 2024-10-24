@@ -19,16 +19,16 @@ it("placeShip Vertical", () => {
 
 it("invalid place ship", () => {
   const gameboard = new Gameboard();
-  expect(() => gameboard.placeShip(8, 8, 1)).toThrow("Invalid coodinate");
-  expect(() => gameboard.placeShip(2, 3, 7)).toThrow(
+  expect(() => gameboard.placeShip(10, 8, 1)).toThrow("Invalid coodinate");
+  expect(() => gameboard.placeShip(2 ,6, 5,'horizontal')).toThrow(
     "Invalid coodinate: ship extends beyond board horizontally",
   );
-  expect(() => gameboard.placeShip(4, 4, 5, "vertical")).toThrow(
+  expect(() => gameboard.placeShip(7, 5, 5, "vertical")).toThrow(
     "Invalid coodinate: ship extends beyond board vertically",
   );
   gameboard.placeShip(1, 1, 3);
   expect(() => gameboard.placeShip(1, 2, 2)).toThrow(
-    "Cannot place ship: positino already occupied."
+    "Cannot place ship: position already occupied."
   );
 });
 it("receive Attack", () => {
@@ -51,17 +51,34 @@ it("checkAllShips", () => {
   const gameboard = new Gameboard();
   gameboard.placeShip(1, 1, 2);
   gameboard.receiveAttack(1, 1);
-  gameboard.receiveAttack(1, 2);
-  expect(gameboard.areAllShipsSunk()).toBe(true);
+  gameboard.receiveAttack(2, 1);
+  expect(gameboard.areAllShipsSunk()).toBe(true); 
+
   gameboard.placeShip(4, 4, 2, "vertical");
   gameboard.receiveAttack(4, 4);
-  gameboard.receiveAttack(5, 4);
-  expect(gameboard.areAllShipsSunk()).toBe(true);
+  gameboard.receiveAttack(4, 5);
+  expect(gameboard.areAllShipsSunk()).toBe(true); 
 });
+
 
 it('isAdjacentToShip',()=>{
     const gameboard=new Gameboard();
     gameboard.placeShip(2,2,2);
     expect(gameboard.isAdjacentToShip(1,1)).toBe(true);
     expect(gameboard.isAdjacentToShip(6,6)).toBe(false);
+})
+
+it('hasUnsunkedShip',()=>{
+  const gameboard=new Gameboard();
+  gameboard.placeShip(0,0,2);
+  gameboard.receiveAttack(0,0)
+  expect(gameboard.hasUnsunkedShip()).toBe(true)
+})
+
+it('getBestCoord',()=>{
+  const gameboard=new Gameboard();
+  expect(gameboard.getBestCoord()).toBe(false);
+  gameboard.placeShip(0,0,2);
+  gameboard.receiveAttack(0,0)
+  expect(gameboard.getBestCoord()).toEqual([1,0])
 })

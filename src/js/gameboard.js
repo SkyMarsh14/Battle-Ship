@@ -69,9 +69,6 @@ class Gameboard {
     const ship = this.board[y][x];
     if (ship) {
       ship.hit();
-      if (this.areAllShipsSunk()) {
-        console.log("You lost");
-      }
       this.gotHit.push([x, y]);
       return true;
     }
@@ -156,7 +153,12 @@ class Gameboard {
       do {
         x = Math.floor(Math.random() * 10);
         y = Math.floor(Math.random() * 10);
-      } while (this.attacked.some((item) => item[0] === x && item[1] === y));
+      } while (
+        this.attacked.some(
+          (item) =>
+            (item[0] === x && item[1] === y) || this.isAdjacentToShip(x, y),
+        )
+      );
     }
     if (this.receiveAttack(x, y)) {
       console.log(`Bot hit your ship. Another turn.`);
@@ -187,47 +189,47 @@ class Gameboard {
     if (!unsunkShipCoords.length) {
       return false;
     }
-    for(let i=0;i<unsunkShipCoords.length;i++){
-      let x,y;
+    for (let i = 0; i < unsunkShipCoords.length; i++) {
+      let x, y;
       let neighbors;
       [x, y] = unsunkShipCoords[i];
-      if(unsunkShipCoords.length>1){
-        if(unsunkShipCoords[0][0]===unsunkShipCoords[1][0]){
-          neighbors=[
-            [x,y+1],
-            [x,y-1]
-          ]
-        }else{
-          neighbors=[
-            [x+1,y],
-            [x-1,y]
-          ]
+      if (unsunkShipCoords.length > 1) {
+        if (unsunkShipCoords[0][0] === unsunkShipCoords[1][0]) {
+          neighbors = [
+            [x, y + 1],
+            [x, y - 1],
+          ];
+        } else {
+          neighbors = [
+            [x + 1, y],
+            [x - 1, y],
+          ];
         }
-      }else{
-    // Get neighbors of the uns unk ship's coordinate
-    neighbors = [
-      [x + 1, y],
-      [x - 1, y],
-      [x, y + 1],
-      [x, y - 1],
-    ];
-  }
-    // Filter valid coordinates that are within the board boundaries
-    const validNeighbors = neighbors.filter(([nx, ny]) => {
-      return nx >= 0 && nx < 10 && ny >= 0 && ny < 10;
-    });
+      } else {
+        // Get neighbors of the uns unk ship's coordinate
+        neighbors = [
+          [x + 1, y],
+          [x - 1, y],
+          [x, y + 1],
+          [x, y - 1],
+        ];
+      }
+      // Filter valid coordinates that are within the board boundaries
+      const validNeighbors = neighbors.filter(([nx, ny]) => {
+        return nx >= 0 && nx < 10 && ny >= 0 && ny < 10;
+      });
 
-    // Filter coordinates that haven't been attacked yet
-    const unAttackedNeighbors = validNeighbors.filter(([nx, ny]) => {
-      return !this.attacked.some(([ax, ay]) => ax === nx && ay === ny);
-    });
-    if(unAttackedNeighbors.length>0) 
+      // Filter coordinates that haven't been attacked yet
+      const unAttackedNeighbors = validNeighbors.filter(([nx, ny]) => {
+        return !this.attacked.some(([ax, ay]) => ax === nx && ay === ny);
+      });
+      if (unAttackedNeighbors.length > 0)
         return unAttackedNeighbors[
-        Math.floor(Math.random() * unAttackedNeighbors.length)
-      ];
-    // If un-attacked neighbors exist, return one; otherwise, return any valid neighbor
-  }
-  return false;
+          Math.floor(Math.random() * unAttackedNeighbors.length)
+        ];
+      // If un-attacked neighbors exist, return one; otherwise, return any valid neighbor
+    }
+    return false;
     // Fallback: if all neighbors have been attacked, return any valid neighbor
   }
 
@@ -235,6 +237,34 @@ class Gameboard {
     return this.gotHit.some(([x, y]) => {
       return !this.board[y][x].isSunk();
     });
+  }
+  getNeigborCells(x, y) {
+    const neighbors = [
+      [x + 1, y], //right
+      [x - 1, y], //left
+      [x, y - 1], //bottom
+      [x, y + 1], //top
+      [x + 1, y + 1], //top right
+      [x - 1, y + 1], //top left
+      [x + 1, y - 1], //bottom right
+      [x - 1, y - 1], //bottom left
+    ];
+    return neighbors.filter(([nx, ny]) => {
+      return nx >= 0 && nx < 10 && ny >= 0 && ny < 10;
+    });
+  }
+  getShipNeighbors() {
+    let neighbors;
+    const sunkedShips = this.gotHit.filter(([x, y]) => {
+      return this.board[y][x].isSunk();
+    });
+    sunkedShips.forEach(([nx, ny]) => {
+      if (neighbors === undefined) {
+        neighbors = this.getNeigborCells(nx, ny);
+      }
+      neighbors.concat(this.getNeigborCells(nx, ny));
+    });
+    return [...new Set(neighbors)];
   }
 }
 

@@ -75,10 +75,14 @@ it('hasUnsunkedShip',()=>{
   expect(gameboard.hasUnsunkedShip()).toBe(true)
 })
 
-it('getBestCoord',()=>{
+
+it('getNeighborCells',()=>{
   const gameboard=new Gameboard();
-  expect(gameboard.getBestCoord()).toBe(false);
-  gameboard.placeShip(0,0,2);
-  gameboard.receiveAttack(0,0)
-  expect(gameboard.getBestCoord()).toEqual([1,0])
+  expect(gameboard.getNeigborCells(0,0)).toEqual([[1,0],[0,1],[1,1]])
+})
+it('getShipNeighbors',()=>{
+  const game= new Gameboard();
+  game.placeShip(0,0,1);
+  game.receiveAttack(0,0);
+  expect(game.getShipNeighbors().sort()).toEqual([[0,1],[1,0],[1,1]].sort())
 })

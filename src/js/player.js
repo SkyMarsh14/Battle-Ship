@@ -7,7 +7,6 @@ class Player {
     this.gameboard = new Gameboard();
   }
   attack(x, y) {
-    console.log(`${this.name} got an attack on ${[x, y]}`);
     return this.gameboard.receiveAttack(x, y);
   }
 }

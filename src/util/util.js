@@ -33,19 +33,19 @@ function markAttackedCell(playerGrid, gameControl) {
     if (isNaN(cellIndex)) return;
     const x = cellIndex % 10;
     const y = Math.floor(cellIndex / 10);
-    try{
-    if (gameControl[player].attack(x, y)) {
-      e.target.classList.add("gotHit");
+    try {
+      if (gameControl[player].attack(x, y)) {
+        e.target.classList.add("gotHit");
 
-      gameLog.textContent = "You hit a target, your turn again!";
+        gameLog.textContent = "You hit a target, your turn again!";
+        return;
+      } else {
+        e.target.classList.add("missed");
+      }
+    } catch {
+      alert("The selected cell has already been attacked.");
       return;
-    } else {
-      e.target.classList.add("missed");
     }
-  }catch{
-    alert('The selected cell has already been attacked.')
-    return
-  }
     const playerOneBoard = document.querySelector(`[data-player="playerOne"]`);
     const grid = playerOneBoard.querySelectorAll(".cell");
 

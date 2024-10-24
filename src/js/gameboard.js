@@ -122,7 +122,6 @@ class Gameboard {
     }
     try {
       this.placeShip(row, col, shipSize, direction);
-      this.ships.push(new Ship(shipSize));
       return;
     } catch (err) {
       console.log(err);

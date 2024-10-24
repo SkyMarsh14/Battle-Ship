@@ -1,5 +1,5 @@
 import { markShips, generateGameboard, markAttackedCell } from "./../util/util";
-
+import placeShipScreen from "./placeShip";
 const footer = document.querySelector(".content");
 const gameLog = document.createElement("h1");
 footer.append(gameLog);
@@ -23,4 +23,7 @@ export default function startGame(gameControl) {
   markShips(playerOneBoard, playerOneGrid);
   markAttackedCell(playerOneGrid, gameControl);
   markAttackedCell(playerTwoGrid, gameControl);
+  document.querySelector("#playAgainBtn").addEventListener("click", () => {
+    placeShipScreen(gameControl.playerOne.name);
+  });
 }

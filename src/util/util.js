@@ -34,9 +34,15 @@ function markAttackedCell(playerGrid, gameControl) {
     const x = cellIndex % 10;
     const y = Math.floor(cellIndex / 10);
     try {
-      if (gameControl[player].attack(x, y)) {
+      const attack = (ax, ay) => gameControl[player].attack(ax, ay);
+      if (attack(x, y)) {
         e.target.classList.add("gotHit");
-
+        if (gameControl.playerTwo.gameboard.areAllShipsSunk()) {
+          document.querySelector(".winAnnounce").textContent =
+            `${gameControl.playerOne.name} won!`;
+            gameLog.textContent='';
+          modal.showModal();
+        }
         gameLog.textContent = "You hit a target, your turn again!";
         return;
       } else {
@@ -63,10 +69,15 @@ function markAttackedCell(playerGrid, gameControl) {
       message = `The bot attacked X:${boardInfo.log[0][0]} Y:${boardInfo.log[0][1]}`;
     }
     if (boardInfo.allShipSunk) {
+      document.querySelector(".winAnnounce").textContent =
+        `${gameControl.playerOne.name} lost agaist ${gameControl.playerTwo.name}.`;
+      modal.showModal();
       message = "Bot has won the game";
     }
     document.querySelector(".gameLog").textContent = message;
   });
 }
+
+const modal = document.querySelector("dialog");
 
 export { generateGameboard, markShips, markAttackedCell };

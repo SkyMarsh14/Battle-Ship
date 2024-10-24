@@ -184,20 +184,34 @@ class Gameboard {
       return !this.board[y][x].isSunk();
     });
     // If no unsunk ship is found, return false
-    if (!unsunkShipCoords) {
+    if (!unsunkShipCoords.length) {
       return false;
     }
     for(let i=0;i<unsunkShipCoords.length;i++){
-      debugger;
-    // Get neighbors of the unsunk ship's coordinate
-    let [x, y] = unsunkShipCoords[i];
-    const neighbors = [
+      let x,y;
+      let neighbors;
+      [x, y] = unsunkShipCoords[i];
+      if(unsunkShipCoords.length>1){
+        if(unsunkShipCoords[0][0]===unsunkShipCoords[1][0]){
+          neighbors=[
+            [x,y+1],
+            [x,y-1]
+          ]
+        }else{
+          neighbors=[
+            [x+1,y],
+            [x-1,y]
+          ]
+        }
+      }else{
+    // Get neighbors of the uns unk ship's coordinate
+    neighbors = [
       [x + 1, y],
       [x - 1, y],
       [x, y + 1],
       [x, y - 1],
     ];
-
+  }
     // Filter valid coordinates that are within the board boundaries
     const validNeighbors = neighbors.filter(([nx, ny]) => {
       return nx >= 0 && nx < 10 && ny >= 0 && ny < 10;
@@ -207,10 +221,8 @@ class Gameboard {
     const unAttackedNeighbors = validNeighbors.filter(([nx, ny]) => {
       return !this.attacked.some(([ax, ay]) => ax === nx && ay === ny);
     });
-    debugger;
     if(unAttackedNeighbors.length>0) 
-    
-      return unAttackedNeighbors[
+        return unAttackedNeighbors[
         Math.floor(Math.random() * unAttackedNeighbors.length)
       ];
     // If un-attacked neighbors exist, return one; otherwise, return any valid neighbor

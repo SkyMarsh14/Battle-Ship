@@ -40,7 +40,7 @@ function markAttackedCell(playerGrid, gameControl) {
         if (gameControl.playerTwo.gameboard.areAllShipsSunk()) {
           document.querySelector(".winAnnounce").textContent =
             `${gameControl.playerOne.name} won!`;
-            gameLog.textContent='';
+          gameLog.textContent = "";
           modal.showModal();
         }
         gameLog.textContent = "You hit a target, your turn again!";

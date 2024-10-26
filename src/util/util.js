@@ -56,25 +56,27 @@ function markAttackedCell(playerGrid, gameControl) {
     const grid = playerOneBoard.querySelectorAll(".cell");
 
     const boardInfo = gameControl.playerOne.gameboard.botAttack();
+    let message;
+
     boardInfo.miss.forEach((item) => {
       grid[item[0] + item[1] * 10].classList.add("missed");
     });
     boardInfo.hit.forEach((item) => {
       grid[item[0] + item[1] * 10].classList.add("gotHit");
     });
-    let message;
     if (boardInfo.log.size > 1) {
       message = `The bot hit ${boardInfo.log.size - 1} of your ships!`;
     } else {
-      for(const x of boardInfo.log){
-      message = `The bot attacked X:Y ${x}`;
+      for (const x of boardInfo.log) {
+        message = `The bot attacked X,Y ${x}`;
       }
     }
-    if (boardInfo.allShipSunk) {
+    if (gameControl.playerOne.gameboard.areAllShipsSunk()) {
       document.querySelector(".winAnnounce").textContent =
         `${gameControl.playerOne.name} lost agaist ${gameControl.playerTwo.name}.`;
       modal.showModal();
       message = "Bot has won the game";
+      return;
     }
     document.querySelector(".gameLog").textContent = message;
   });

@@ -7,7 +7,7 @@ class Gameboard {
     this.missed = [];
     this.ships = [];
     this.gotHit = [];
-    this.attackableCoords=Array.from({length:100},(v,i)=>i)
+    this.attackableCoords = Array.from({ length: 100 }, (v, i) => i);
   }
 
   get attacked() {
@@ -56,25 +56,23 @@ class Gameboard {
     this.ships.push(ship);
   }
   receiveAttack(x, y) {
-    const isCellAttacked = this.attacked.some(
-      (item) =>
-        Array.isArray(item) &&
-        item.length === 2 &&
-        item[0] === x &&
-        item[1] === y,
-    );
-    if (isCellAttacked) {
+    const cellIndex = x + y * this.size;
+    if (!this.attackableCoords.includes(cellIndex)) {
       throw new Error("You have attacked this cell already.");
     }
     const ship = this.board[y][x];
     if (ship) {
       ship.hit();
       this.gotHit.push([x, y]);
-      return true;
+    } else {
+      this.missed.push([x, y]);
     }
-    this.missed.push([x, y]);
-    return false;
+    this.attackableCoords = this.attackableCoords.filter(
+      (index) => index !== cellIndex,
+    );
+    return !!ship;
   }
+
   showMissedShots() {
     return this.missed;
   }
@@ -143,42 +141,58 @@ class Gameboard {
       new Array(this.size).fill(null),
     );
   }
-  botAttack(log = []) {
+  botAttack(log = new Set()) {
     let x, y;
+
+    // Check if there's a strategic coordinate to attack based on previous hits
     const bestCoord = this.getBestCoord();
     if (bestCoord) {
       [x, y] = bestCoord;
     } else {
-        const cellIndex=this.attackableCoords.splice(Math.random()*this.attackableCoords.length,1);
-        x=cellIndex%10;
-        y=Math.floor(cellIndex/10);
+      // Pick a random attackable cell if no strategic coordinate is available
+      const cellIndex =
+        this.attackableCoords[
+          Math.floor(Math.random() * this.attackableCoords.length)
+        ];
+      x = cellIndex % this.size;
+      y = Math.floor(cellIndex / this.size);
     }
-    if (this.receiveAttack(x, y)) {
-      console.log(`Bot hit your ship. Another turn.`);
-      log.push([x, y]);
-      this.botAttack(log);
-    } else {
-      log.push([x, y]);
+    // Attempt the attack at the chosen coordinates
+    const hitSuccessful = this.receiveAttack(x, y);
+
+    // Log the attack in the Set and remove it from attackableCoords
+    log.add(`${x},${y}`);
+    this.attackableCoords = this.attackableCoords.filter(
+      (index) => index !== x + y * this.size,
+    );
+
+    // If hit is successful, recursively attack again
+    if (hitSuccessful) {
+      console.log(`Bot hit your ship at (${x}, ${y}). Another turn.`);
+      return this.botAttack(log);
     }
+    //remove neigboring cells of sunken ships
+    this.attackableCoords = this.attackableCoords.filter(
+      (index) => !this.getShipNeighbors().includes(index),
+    );
+
     return {
       hit: this.gotHit,
       miss: this.missed,
       log,
-      allShipSunk: this.areAllShipsSunk(),
+      allShipsSunk: this.areAllShipsSunk(),
     };
   }
 
   getBestCoord() {
-    // Return false if no hits were made
+    this.getShipNeighbors();
     if (this.gotHit.length === 0) {
       return false;
     }
 
-    // Find a ship that got hit but hasn't been sunk yet
     const unsunkShipCoords = this.gotHit.filter(([x, y]) => {
       return !this.board[y][x].isSunk();
     });
-    // If no unsunk ship is found, return false
     if (!unsunkShipCoords.length) {
       return false;
     }
@@ -199,7 +213,6 @@ class Gameboard {
           ];
         }
       } else {
-        // Get neighbors of the uns unk ship's coordinate
         neighbors = [
           [x + 1, y],
           [x - 1, y],
@@ -207,12 +220,10 @@ class Gameboard {
           [x, y - 1],
         ];
       }
-      // Filter valid coordinates that are within the board boundaries
       const validNeighbors = neighbors.filter(([nx, ny]) => {
         return nx >= 0 && nx < 10 && ny >= 0 && ny < 10;
       });
 
-      // Filter coordinates that haven't been attacked yet
       const unAttackedNeighbors = validNeighbors.filter(([nx, ny]) => {
         return !this.attacked.some(([ax, ay]) => ax === nx && ay === ny);
       });
@@ -220,10 +231,8 @@ class Gameboard {
         return unAttackedNeighbors[
           Math.floor(Math.random() * unAttackedNeighbors.length)
         ];
-      // If un-attacked neighbors exist, return one; otherwise, return any valid neighbor
     }
     return false;
-    // Fallback: if all neighbors have been attacked, return any valid neighbor
   }
 
   hasUnsunkedShip() {
@@ -231,7 +240,7 @@ class Gameboard {
       return !this.board[y][x].isSunk();
     });
   }
-  getNeigborCells(x, y) {
+  getNeighborCells(x, y) {
     const neighbors = [
       [x + 1, y], //right
       [x - 1, y], //left
@@ -246,18 +255,27 @@ class Gameboard {
       return nx >= 0 && nx < 10 && ny >= 0 && ny < 10;
     });
   }
+  coordToIndex(x, y) {
+    return x + y * 10;
+  }
   getShipNeighbors() {
-    let neighbors;
+    const neighbors = [];
     const sunkedShips = this.gotHit.filter(([x, y]) => {
       return this.board[y][x].isSunk();
     });
     sunkedShips.forEach(([nx, ny]) => {
-      if (neighbors === undefined) {
-        neighbors = this.getNeigborCells(nx, ny);
-      }
-      neighbors.concat(this.getNeigborCells(nx, ny));
+      neighbors.push(...this.getNeighborCells(nx, ny));
     });
-    return [...new Set(neighbors)];
+    const neigborsIndices = neighbors.map(([nx, ny]) =>
+      this.coordToIndex(nx, ny),
+    );
+    const gotHitIndices = this.gotHit.map(([nx, ny]) =>
+      this.coordToIndex(nx, ny),
+    );
+    const filteredNeighbors = neigborsIndices.filter(
+      (index) => !gotHitIndices.includes(index),
+    );
+    return [...new Set(filteredNeighbors)];
   }
 }
 

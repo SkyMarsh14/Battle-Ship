@@ -23,8 +23,8 @@ export default function startGame(gameControl) {
   markAttackedCell(playerOneGrid, gameControl);
   markAttackedCell(playerTwoGrid, gameControl);
   document.querySelector("#playAgainBtn").addEventListener("click", () => {
-    document.querySelector('dialog').close();
-    containerDiv.classList.remove('twoBorads');
+    document.querySelector("dialog").close();
+    containerDiv.classList.remove("twoBoards");
     placeShipScreen(gameControl.playerOne.name);
   });
 }

@@ -63,10 +63,12 @@ function markAttackedCell(playerGrid, gameControl) {
       grid[item[0] + item[1] * 10].classList.add("gotHit");
     });
     let message;
-    if (boardInfo.log.length > 1) {
-      message = `The bot hit ${boardInfo.log.length - 1} of your ships!`;
+    if (boardInfo.log.size > 1) {
+      message = `The bot hit ${boardInfo.log.size - 1} of your ships!`;
     } else {
-      message = `The bot attacked X:${boardInfo.log[0][0]} Y:${boardInfo.log[0][1]}`;
+      for(const x of boardInfo.log){
+      message = `The bot attacked X:Y ${x}`;
+      }
     }
     if (boardInfo.allShipSunk) {
       document.querySelector(".winAnnounce").textContent =

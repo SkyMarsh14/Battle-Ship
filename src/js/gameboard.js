@@ -7,7 +7,7 @@ class Gameboard {
     this.missed = [];
     this.ships = [];
     this.gotHit = [];
-    this.printTable = this.printTable.bind(this);
+    this.attackableCoords=Array.from({length:100},(v,i)=>i)
   }
 
   get attacked() {
@@ -149,15 +149,9 @@ class Gameboard {
     if (bestCoord) {
       [x, y] = bestCoord;
     } else {
-      do {
-        x = Math.floor(Math.random() * 10);
-        y = Math.floor(Math.random() * 10);
-      } while (
-        this.attacked.some(
-          (item) =>
-            (item[0] === x && item[1] === y) || this.isAdjacentToShip(x, y),
-        )
-      );
+        const cellIndex=this.attackableCoords.splice(Math.random()*this.attackableCoords.length,1);
+        x=cellIndex%10;
+        y=Math.floor(cellIndex/10);
     }
     if (this.receiveAttack(x, y)) {
       console.log(`Bot hit your ship. Another turn.`);

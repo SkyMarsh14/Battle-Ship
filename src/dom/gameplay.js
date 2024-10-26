@@ -6,7 +6,6 @@ footer.append(gameLog);
 gameLog.classList.add("gameLog");
 
 export default function startGame(gameControl) {
-  console.log(gameControl);
   const containerDiv = document.querySelector(".containerDiv");
   containerDiv.classList.add("twoBoards");
   containerDiv.innerHTML = "";
@@ -24,6 +23,8 @@ export default function startGame(gameControl) {
   markAttackedCell(playerOneGrid, gameControl);
   markAttackedCell(playerTwoGrid, gameControl);
   document.querySelector("#playAgainBtn").addEventListener("click", () => {
+    document.querySelector('dialog').close();
+    containerDiv.classList.remove('twoBorads');
     placeShipScreen(gameControl.playerOne.name);
   });
 }
